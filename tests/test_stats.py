@@ -1,6 +1,6 @@
 import pytest
 
-from agent_ratchet.stats import fisher_worse, min_p_worse, tarone
+from ai_agent_evaluation.stats import fisher_worse, min_p_worse, tarone
 
 
 def test_fisher_exact_values():

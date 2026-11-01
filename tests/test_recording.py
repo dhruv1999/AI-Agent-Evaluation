@@ -3,7 +3,7 @@ import threading
 
 import pytest
 
-from agent_ratchet import record_response, record_usage, recording, tool
+from ai_agent_evaluation import record_response, record_usage, recording, tool
 
 
 @tool

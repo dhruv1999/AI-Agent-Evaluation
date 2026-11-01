@@ -51,7 +51,7 @@ Case("refund needs an order number", "Refund my last order", [expect.never_calls
 If your agent is a plain function, decorate its tools. Inside a test run every call is recorded. Outside a run the decorator does nothing, so it can stay in production code.
 
 ```python
-from agent_ratchet import tool, record_response
+from ai_agent_evaluation import tool, record_response
 
 @tool
 def lookup_order(order_id: str) -> dict: ...
@@ -68,12 +68,12 @@ Async tools and async agents work the same way.
 ## Baselines
 
 ```bash
-agent-ratchet run suite.py --save-baseline    # run each case 10 times and keep the result
-agent-ratchet run suite.py                    # compare with it
+ai-agent-evaluation run suite.py --save-baseline    # run each case 10 times and keep the result
+ai-agent-evaluation run suite.py                    # compare with it
 ```
 
 - The baseline runs every case `max_repeats` times (10 by default). It is a one time cost, and more runs make every later comparison sharper.
-- Results go to `.agent-ratchet/`. Commit `<suite>.baseline.json`. It holds check names, pass or fail, cost and time: no prompts, answers or tool data.
+- Results go to `.ai-agent-evaluation/`. Commit `<suite>.baseline.json`. It holds check names, pass or fail, cost and time: no prompts, answers or tool data.
 - `<suite>.latest.json` holds the full last run for debugging, and a `.gitignore` keeps it out of git.
 - Update the baseline on purpose, when a change is meant to alter behaviour. Saving with `--case` updates only those cases.
 - If you edit a case's input or checks, it shows as **changed** until you save a new baseline, instead of being compared with numbers that no longer fit it.
@@ -145,18 +145,18 @@ Suite(agent=..., cases=[...], price_per_mtok=(5.0, 25.0))   # input, output
 Cost and time changes are always shown. To fail on them:
 
 ```bash
-agent-ratchet run suite.py --max-cost-increase 0.25 --max-latency-increase 0.5
+ai-agent-evaluation run suite.py --max-cost-increase 0.25 --max-latency-increase 0.5
 ```
 
 ## Command line
 
 ```text
-agent-ratchet run SUITE [--repeats N] [--max-repeats N] [--case NAME] [--save-baseline] [--baseline FILE]
+ai-agent-evaluation run SUITE [--repeats N] [--max-repeats N] [--case NAME] [--save-baseline] [--baseline FILE]
                         [--dir DIR] [--confidence 0.95] [--max-cost-increase X] [--max-latency-increase X]
                         [--fail-on regression|failure|never] [--markdown FILE]
-agent-ratchet compare NEW.json BASELINE.json
-agent-ratchet import langfuse TRACE_ID [--name NAME]
-agent-ratchet import otel SPANS.json [--name NAME]
+ai-agent-evaluation compare NEW.json BASELINE.json
+ai-agent-evaluation import langfuse TRACE_ID [--name NAME]
+ai-agent-evaluation import otel SPANS.json [--name NAME]
 ```
 
 Exit codes: 0 all good; 1 a regression, a failed must pass case, or any failure with `--fail-on failure`; 2 bad usage or a suite file that could not be loaded.
@@ -172,14 +172,14 @@ On GitHub Actions the Markdown report is added to the job summary automatically.
 ## pytest
 
 ```python
-from agent_ratchet import assert_no_regressions
+from ai_agent_evaluation import assert_no_regressions
 from agent_suite import suite
 
 def test_support_agent():
     assert_no_regressions(suite)
 ```
 
-- `AGENT_RATCHET_UPDATE=1 pytest` saves or refreshes the baseline.
+- `AI_AGENT_EVALUATION_UPDATE=1 pytest` saves or refreshes the baseline.
 - On your machine a missing baseline is created on the first run. In CI (when `CI` is set) a missing baseline fails the test, so a forgotten baseline never passes silently.
 - The helper is synchronous. Inside async tests, use `await suite.arun(baseline=...)` and `compare`.
 
@@ -188,7 +188,7 @@ def test_support_agent():
 For things rules cannot capture, such as tone or the correctness of free text:
 
 ```python
-from agent_ratchet import expect, judges
+from ai_agent_evaluation import expect, judges
 
 expect.judge("The reply apologises and gives a delivery date.", judges.anthropic())
 expect.judge("...", judges.openai(model="<model>"))
@@ -197,7 +197,7 @@ expect.judge("...", judges.gemini(model="<model>"))
 expect.judge("...", my_function)   # any function: prompt in, text out
 ```
 
-- Install the SDK you need: `pip install "agent-ratchet[anthropic]"`, `[openai]` or `[gemini]`. Keys come from the usual environment variables.
+- Install the SDK you need: `pip install "ai-agent-evaluation[anthropic]"`, `[openai]` or `[gemini]`. Keys come from the usual environment variables.
 - Graders ask for structured output and treat the run as data. A grader that refuses, errors or answers in a way that cannot be read fails the check.
 - For OpenAI reasoning models, pass `reasoning_effort`. It is off by default because other models reject it.
 - Graders send the run to the model provider, cost money, and add noise of their own. Use rules where they fit.
@@ -205,8 +205,8 @@ expect.judge("...", my_function)   # any function: prompt in, text out
 ## Running from Python
 
 ```python
-result = suite.run(baseline=".agent-ratchet/support.baseline.json")   # or: await suite.arun(...)
-comparison = compare(result, SuiteResult.load(".agent-ratchet/support.baseline.json"))
+result = suite.run(baseline=".ai-agent-evaluation/support.baseline.json")   # or: await suite.arun(...)
+comparison = compare(result, SuiteResult.load(".ai-agent-evaluation/support.baseline.json"))
 print(report.text(result, comparison))
 ```
 

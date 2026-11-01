@@ -3,7 +3,7 @@ import re
 import pytest
 from conftest import traj
 
-from agent_ratchet import ToolCall, expect
+from ai_agent_evaluation import ToolCall, expect
 
 
 def test_calls_with_exact_regex_and_callable_args():

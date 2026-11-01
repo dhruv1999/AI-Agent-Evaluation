@@ -1,7 +1,7 @@
 import pytest
 
-from agent_ratchet import Case, Suite, expect, tool
-from agent_ratchet.testing import assert_no_regressions
+from ai_agent_evaluation import Case, Suite, expect, tool
+from ai_agent_evaluation.testing import assert_no_regressions
 
 STATE = {"broken": False}
 
@@ -22,11 +22,11 @@ suite = Suite(agent, [Case("escalates", "refund 77", [expect.calls("escalate")])
 
 def test_baseline_life_cycle(tmp_path, monkeypatch):
     path = tmp_path / "pytest_suite.baseline.json"
-    monkeypatch.delenv("AGENT_RATCHET_UPDATE", raising=False)
+    monkeypatch.delenv("AI_AGENT_EVALUATION_UPDATE", raising=False)
     STATE["broken"] = False
 
     monkeypatch.setenv("CI", "true")
-    with pytest.raises(AssertionError, match="AGENT_RATCHET_UPDATE=1"):
+    with pytest.raises(AssertionError, match="AI_AGENT_EVALUATION_UPDATE=1"):
         assert_no_regressions(suite, path)  # in CI a missing baseline fails
 
     monkeypatch.delenv("CI")
@@ -38,8 +38,8 @@ def test_baseline_life_cycle(tmp_path, monkeypatch):
     with pytest.raises(AssertionError, match="REGRESSED"):
         assert_no_regressions(suite, path)
 
-    monkeypatch.setenv("AGENT_RATCHET_UPDATE", "1")  # accept the new behaviour on purpose
+    monkeypatch.setenv("AI_AGENT_EVALUATION_UPDATE", "1")  # accept the new behaviour on purpose
     assert_no_regressions(suite, path)
-    monkeypatch.delenv("AGENT_RATCHET_UPDATE")
+    monkeypatch.delenv("AI_AGENT_EVALUATION_UPDATE")
     assert_no_regressions(suite, path)
     STATE["broken"] = False

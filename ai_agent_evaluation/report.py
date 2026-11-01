@@ -120,7 +120,7 @@ def _md(s: str) -> str:
 
 def markdown(result: SuiteResult, comparison: Comparison | None = None) -> str:
     diffs = {d.name: d for d in comparison.diffs} if comparison else {}
-    head = f"### agent-ratchet: {_md(result.name)}\n\n"
+    head = f"### ai-agent-evaluation: {_md(result.name)}\n\n"
     verdict = []
     if comparison:
         verdict.append(f"**{len(comparison.regressions)} regressed**")

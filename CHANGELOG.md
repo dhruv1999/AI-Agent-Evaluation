@@ -2,7 +2,7 @@
 
 ## 0.1.0
 
-First release of agent-ratchet.
+First release of ai-agent-evaluation.
 
 - Behaviour checks for tool calls, arguments, order, errors, answers, cost, tokens and time
 - Repeated runs per case, with extra runs only for cases that look worse than the baseline

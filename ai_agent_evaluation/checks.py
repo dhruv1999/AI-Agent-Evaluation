@@ -1,6 +1,6 @@
 """Checks: what an agent run must and must not do.
 
-    from agent_ratchet import expect
+    from ai_agent_evaluation import expect
 
     expect.calls("lookup_order", order_id="42")
     expect.never_calls("issue_refund")
@@ -10,7 +10,7 @@
 
 Each check takes a Trajectory and returns a CheckResult. Checks are plain functions of the run,
 with no model calls, so they are free, fast and give the same answer every time. For judgement
-calls, `expect.judge` asks a model (see agent_ratchet.judges).
+calls, `expect.judge` asks a model (see ai_agent_evaluation.judges).
 """
 
 from __future__ import annotations
@@ -223,7 +223,7 @@ def check(fn: Callable[[Trajectory], Any], name: str | None = None) -> Check:
 
 
 def judge(rubric: str, llm: Callable[[str], str], name: str | None = None) -> Check:
-    """A model grades the run against a rubric. See agent_ratchet.judges for ready made graders."""
+    """A model grades the run against a rubric. See ai_agent_evaluation.judges for ready made graders."""
     from .judges import judge as _judge
 
     return _judge(rubric, llm, name)

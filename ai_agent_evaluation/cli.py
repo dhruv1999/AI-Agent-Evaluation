@@ -1,10 +1,10 @@
 """Command line.
 
-    agent-ratchet run tests/agent_suite.py                 run, and compare with the baseline if there is one
-    agent-ratchet run tests/agent_suite.py --save-baseline  run and keep the result as the new baseline
-    agent-ratchet compare new.json baseline.json            compare two saved results
-    agent-ratchet import langfuse <trace-id>                turn a production trace into a test case
-    agent-ratchet import otel spans.json                    the same, from OpenTelemetry spans
+    ai-agent-evaluation run tests/agent_suite.py                 run, and compare with the baseline if there is one
+    ai-agent-evaluation run tests/agent_suite.py --save-baseline  run and keep the result as the new baseline
+    ai-agent-evaluation compare new.json baseline.json            compare two saved results
+    ai-agent-evaluation import langfuse <trace-id>                turn a production trace into a test case
+    ai-agent-evaluation import otel spans.json                    the same, from OpenTelemetry spans
 
 Exit codes: 0 all good; 1 a case regressed or a must pass case failed (or any failure, with
 --fail-on failure); 2 bad usage, or the suite file could not be loaded.
@@ -34,7 +34,7 @@ def _load_suites(path: Path) -> list[Suite]:
     if not path.is_file():
         raise UsageError(f"no such file: {path}")
     sys.path.insert(0, str(path.resolve().parent))
-    module_name = f"agent_ratchet_suite_{slug(path.stem)}"
+    module_name = f"ai_agent_evaluation_suite_{slug(path.stem)}"
     spec = importlib.util.spec_from_file_location(module_name, path)
     if spec is None or spec.loader is None:
         raise UsageError(f"cannot import {path}")
@@ -166,7 +166,7 @@ def _comparison_options(p: argparse.ArgumentParser) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="agent-ratchet", description="Regression tests for AI agents.")
+    ap = argparse.ArgumentParser(prog="ai-agent-evaluation", description="Regression tests for AI agents.")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="run a suite file")
     r.add_argument("suite")
@@ -189,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         return {"run": _cmd_run, "compare": _cmd_compare, "import": _cmd_import}[args.cmd](args)
     except (UsageError, ValueError, OSError) as e:
-        print(f"agent-ratchet: {e}", file=sys.stderr)
+        print(f"ai-agent-evaluation: {e}", file=sys.stderr)
         return 2
 
 

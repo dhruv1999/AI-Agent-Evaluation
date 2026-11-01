@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from agent_ratchet.integrations.otel import from_spans, load_otlp_json
+from ai_agent_evaluation.integrations.otel import from_spans, load_otlp_json
 
 
 def attr(key, value):

@@ -1,12 +1,12 @@
-# agent-ratchet
+# AI Agent Evaluation
 
-[![CI](https://github.com/dhruv1999/Oversight-for-AI-Agents/actions/workflows/ci.yml/badge.svg)](https://github.com/dhruv1999/Oversight-for-AI-Agents/actions/workflows/ci.yml)
+[![CI](https://github.com/dhruv1999/AI-Agent-Evaluation/actions/workflows/ci.yml/badge.svg)](https://github.com/dhruv1999/AI-Agent-Evaluation/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 
 **Regression tests for AI agents. Your agent can get better. It can't quietly get worse.**
 
-agent-ratchet runs each test case several times, compares the pass rates with a baseline saved in your repo, and fails a pull request only when a behaviour got worse by more than chance explains.
+AI Agent Evaluation runs each test case several times, compares the pass rates with a baseline saved in your repo, and fails a pull request only when a behaviour got worse by more than chance explains.
 
 ```text
 case                            passed  baseline  status     cost     time
@@ -37,7 +37,7 @@ large refund goes to a manager: passed 0/10, baseline 10/10. A drop this large h
 
 Several tools can now gate agent changes in CI. Each is good at something different.
 
-| Tool | Good at | Choose agent-ratchet if you want |
+| Tool | Good at | Choose AI Agent Evaluation if you want |
 |---|---|---|
 | Braintrust, LangSmith (paid) | Hosted experiments, dashboards and team review | It free, local and inside your repo |
 | Langfuse experiments (open source, CI gates since May 2026) | Gating on scores when you already run Langfuse | Verdicts per behaviour, with no server to run |
@@ -62,10 +62,10 @@ The reasoning and sources are in [docs/why.md](docs/why.md).
 No API key needed. The example agent is a few lines of plain Python.
 
 ```bash
-git clone https://github.com/dhruv1999/Oversight-for-AI-Agents && cd Oversight-for-AI-Agents
+git clone https://github.com/dhruv1999/AI-Agent-Evaluation && cd AI-Agent-Evaluation
 pip install -e .
-agent-ratchet run examples/quickstart/suite.py --save-baseline
-AGENT_VERSION=2 agent-ratchet run examples/quickstart/suite.py
+ai-agent-evaluation run examples/quickstart/suite.py --save-baseline
+AGENT_VERSION=2 ai-agent-evaluation run examples/quickstart/suite.py
 ```
 
 The second run simulates a prompt change that makes the agent refund large orders itself instead of passing them to a manager. It prints the table at the top of this page and exits with code 1.
@@ -73,7 +73,7 @@ The second run simulates a prompt change that makes the agent refund large order
 To use it in your own project:
 
 ```bash
-pip install git+https://github.com/dhruv1999/Oversight-for-AI-Agents
+pip install git+https://github.com/dhruv1999/AI-Agent-Evaluation
 ```
 
 ## Writing a suite
@@ -81,8 +81,8 @@ pip install git+https://github.com/dhruv1999/Oversight-for-AI-Agents
 A suite is a Python file with your agent and the cases it must handle.
 
 ```python
-from agent_ratchet import Case, Suite, expect
-from agent_ratchet.integrations.langgraph import wrap
+from ai_agent_evaluation import Case, Suite, expect
+from ai_agent_evaluation.integrations.langgraph import wrap
 from my_app import graph
 
 suite = Suite(
@@ -101,18 +101,18 @@ suite = Suite(
 ```
 
 ```bash
-agent-ratchet run tests/agent_suite.py --save-baseline   # once, on a version you trust
-agent-ratchet run tests/agent_suite.py                   # on every change
+ai-agent-evaluation run tests/agent_suite.py --save-baseline   # once, on a version you trust
+ai-agent-evaluation run tests/agent_suite.py                   # on every change
 ```
 
-Commit `.agent-ratchet/*.baseline.json`. It holds check names, pass or fail, cost and time: no prompts, answers or tool data. The full results of the last run stay in `*.latest.json`, which is kept out of git automatically.
+Commit `.ai-agent-evaluation/*.baseline.json`. It holds check names, pass or fail, cost and time: no prompts, answers or tool data. The full results of the last run stay in `*.latest.json`, which is kept out of git automatically.
 
 ## Running in CI or pytest
 
 GitHub Actions:
 
 ```yaml
-- run: agent-ratchet run tests/agent_suite.py
+- run: ai-agent-evaluation run tests/agent_suite.py
   env:
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
@@ -122,14 +122,14 @@ The results table appears on the pull request's checks page. A full workflow is 
 pytest:
 
 ```python
-from agent_ratchet import assert_no_regressions
+from ai_agent_evaluation import assert_no_regressions
 from agent_suite import suite
 
 def test_support_agent():
     assert_no_regressions(suite)
 ```
 
-Run `AGENT_RATCHET_UPDATE=1 pytest` to save or refresh the baseline.
+Run `AI_AGENT_EVALUATION_UPDATE=1 pytest` to save or refresh the baseline.
 
 ## How it decides
 
@@ -168,8 +168,8 @@ Big breaks are caught cheaply. Smaller drops need more runs, which you can buy w
 | OpenAI Agents SDK | `integrations.openai_agents.wrap(agent)` |
 | Google ADK | `integrations.google_adk.wrap(agent)` |
 | Claude Agent SDK | `integrations.claude_agent_sdk.wrap(options)` |
-| Langfuse | `agent-ratchet import langfuse <trace-id>` |
-| OpenTelemetry GenAI | `agent-ratchet import otel spans.json` |
+| Langfuse | `ai-agent-evaluation import langfuse <trace-id>` |
+| OpenTelemetry GenAI | `ai-agent-evaluation import otel spans.json` |
 | Plain Python on the OpenAI, Anthropic or Gemini SDKs | `@tool` on your tool functions and `record_response(response)` |
 
 Each integration is tested against the real framework with a scripted model. Examples are in [examples/frameworks](examples/frameworks) and setup notes in [docs/integrations.md](docs/integrations.md). For checks that rules can't express, model graders on Claude, OpenAI, Azure OpenAI and Gemini are built in.

@@ -1,8 +1,8 @@
 """Langfuse: turn a production trace into a test case.
 
-    agent-ratchet import langfuse <trace-id>          prints a Case to paste into your suite
+    ai-agent-evaluation import langfuse <trace-id>          prints a Case to paste into your suite
 
-    from agent_ratchet.integrations.langfuse import fetch_trace, from_trace
+    from ai_agent_evaluation.integrations.langfuse import fetch_trace, from_trace
     traj = from_trace(fetch_trace("<trace-id>"))
 
 Uses Langfuse's public REST API directly, so the Langfuse SDK is not required. Credentials come

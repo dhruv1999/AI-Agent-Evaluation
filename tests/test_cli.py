@@ -1,7 +1,7 @@
 import json
 import textwrap
 
-from agent_ratchet.cli import main
+from ai_agent_evaluation.cli import main
 
 SUITE = """
 from __future__ import annotations
@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-from agent_ratchet import Case, Suite, expect, tool
+from ai_agent_evaluation import Case, Suite, expect, tool
 
 
 @dataclass

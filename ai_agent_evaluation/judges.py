@@ -1,6 +1,6 @@
 """Model graded checks, for what rules cannot capture ("was the answer polite and correct?").
 
-    from agent_ratchet import expect, judges
+    from ai_agent_evaluation import expect, judges
     expect.judge("The agent refuses to refund without an order number.", judges.anthropic())
     expect.judge("...", judges.openai(model="<model>"))      # also Azure: pass client=AzureOpenAI(...)
     expect.judge("...", judges.gemini(model="<model>"))

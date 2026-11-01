@@ -1,9 +1,9 @@
 import pytest
 from conftest import case_result, suite_result
 
-from agent_ratchet import compare
-from agent_ratchet.compare import CHANGED, IMPROVED, NEW, REGRESSED, REMOVED, SAME
-from agent_ratchet.report import markdown, text
+from ai_agent_evaluation import compare
+from ai_agent_evaluation.compare import CHANGED, IMPROVED, NEW, REGRESSED, REMOVED, SAME
+from ai_agent_evaluation.report import markdown, text
 
 
 def test_statuses():
@@ -88,6 +88,6 @@ def test_markdown_report():
     before = suite_result(case_result("refund | large", 10, 10, cost=0.01), case_result("edited", 3, 3, fingerprint="a"))
     after = suite_result(case_result("refund | large", 0, 10, cost=0.01), case_result("edited", 3, 3, fingerprint="b"))
     md = markdown(after, compare(after, before))
-    assert md.startswith("### agent-ratchet: s") and "**1 regressed**" in md
+    assert md.startswith("### ai-agent-evaluation: s") and "**1 regressed**" in md
     assert "| refund \\| large | 0/10 | 10/10 | 🔻 regressed | $0.0100 (+0%) |" in md
     assert "✅ ok (changed)" in md and "Save a new baseline" in md

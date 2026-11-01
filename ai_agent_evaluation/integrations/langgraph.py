@@ -1,6 +1,6 @@
 """LangGraph (and LangChain agents built on it).
 
-    from agent_ratchet.integrations.langgraph import wrap
+    from ai_agent_evaluation.integrations.langgraph import wrap
     suite = Suite(agent=wrap(graph), cases=[...])
 
 or return the state from graph.invoke(...) yourself; any state with a "messages" list works.
@@ -57,7 +57,7 @@ def wrap(graph: Any, config: Any = None) -> Any:
 
     def run(input: Any) -> Trajectory:
         cfg = dict(config or {})
-        cfg["configurable"] = {**cfg.get("configurable", {}), "thread_id": f"agent-ratchet-{uuid.uuid4().hex}"}
+        cfg["configurable"] = {**cfg.get("configurable", {}), "thread_id": f"ai-agent-evaluation-{uuid.uuid4().hex}"}
         state = graph.invoke({"messages": [{"role": "user", "content": str(input)}]}, cfg)
         return from_state(state, input)
 

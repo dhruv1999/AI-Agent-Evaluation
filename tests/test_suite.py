@@ -5,8 +5,8 @@ import time
 
 import pytest
 
-import agent_ratchet.suite as suite_module
-from agent_ratchet import Case, Suite, SuiteResult, Trajectory, expect, record_usage, tool
+import ai_agent_evaluation.suite as suite_module
+from ai_agent_evaluation import Case, Suite, SuiteResult, Trajectory, expect, record_usage, tool
 
 
 @tool

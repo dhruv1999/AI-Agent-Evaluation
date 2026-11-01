@@ -2,8 +2,8 @@ import json
 
 from conftest import traj
 
-from agent_ratchet import ToolCall, expect, judges, snapshot
-from agent_ratchet.snapshot import case_code
+from ai_agent_evaluation import ToolCall, expect, judges, snapshot
+from ai_agent_evaluation.snapshot import case_code
 
 
 def test_snapshot_makes_a_case_the_run_passes():
@@ -13,7 +13,7 @@ def test_snapshot_makes_a_case_the_run_passes():
     assert not all(c(traj("refund", "lookup")).passed for c in case.expect)
     code = case_code(t, "refund flow")
     assert "expect.calls_in_order('lookup', 'refund')" in code and "Refunded." in code
-    from agent_ratchet import Case  # noqa: F401  the generated code must evaluate
+    from ai_agent_evaluation import Case  # noqa: F401  the generated code must evaluate
 
     assert eval(code.rstrip(",")).name == "refund flow"
 

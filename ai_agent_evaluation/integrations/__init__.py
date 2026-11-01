@@ -1,7 +1,7 @@
 """Integrations: turn each framework's run into a Trajectory.
 
 Each module works on the objects the framework already returns, so the framework itself is not a
-dependency of agent-ratchet. `wrap(...)` helpers also do the running for you.
+dependency of ai-agent-evaluation. `wrap(...)` helpers also do the running for you.
 
     openai_agents      OpenAI Agents SDK      wrap(agent), from_run_result(result)
     langgraph          LangGraph / LangChain   wrap(graph), from_state(state)

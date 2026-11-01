@@ -1,9 +1,9 @@
 """OpenAI Agents SDK.
 
-    from agent_ratchet.integrations.openai_agents import wrap
+    from ai_agent_evaluation.integrations.openai_agents import wrap
     suite = Suite(agent=wrap(my_agent), cases=[...])
 
-or, if you run the agent yourself, return the RunResult and agent-ratchet reads it.
+or, if you run the agent yourself, return the RunResult and ai-agent-evaluation reads it.
 """
 
 from __future__ import annotations

@@ -6,7 +6,7 @@
 `agent` is any function (plain or async) that takes the case input. It can return a Trajectory,
 a plain string (tool calls are then taken from @tool decorated functions), or whatever your
 framework returns: an OpenAI Agents SDK result, a LangGraph state, a list of Google ADK events or
-Claude Agent SDK messages. See agent_ratchet.integrations for wrappers that do the running too.
+Claude Agent SDK messages. See ai_agent_evaluation.integrations for wrappers that do the running too.
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from .recording import _current
 from .trajectory import Trajectory
 
 FORMAT = 1  # version of the saved result files
-DEFAULT_DIR = Path(".agent-ratchet")
+DEFAULT_DIR = Path(".ai-agent-evaluation")
 RETRY_DELAY_S = 1.0  # first wait before retrying a run that hit a provider error; doubles each time
 
 # provider errors that say "try again", not "the agent is wrong"
@@ -227,7 +227,7 @@ class SuiteResult:
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> SuiteResult:
         if d.get("format", 1) > FORMAT:
-            raise ValueError(f"this result was saved by a newer version of agent-ratchet ({d.get('version')}); upgrade to read it")
+            raise ValueError(f"this result was saved by a newer version of ai-agent-evaluation ({d.get('version')}); upgrade to read it")
         return cls(d["name"], [CaseResult.from_dict(c) for c in d["cases"]], d.get("created", ""), d.get("version", ""), d.get("meta", {}))
 
     def save(self, path: str | Path, full: bool = True) -> Path:
@@ -422,5 +422,5 @@ def _in_thread(fn: Callable[[], Any]) -> asyncio.Future[Any]:
         except RuntimeError:  # the event loop has closed: this run was abandoned after a timeout
             pass
 
-    threading.Thread(target=target, name="agent-ratchet-run", daemon=True).start()
+    threading.Thread(target=target, name="ai-agent-evaluation-run", daemon=True).start()
     return future

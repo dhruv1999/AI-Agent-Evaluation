@@ -12,8 +12,8 @@ from langgraph.graph import END, START, StateGraph  # noqa: E402
 from langgraph.graph.message import add_messages  # noqa: E402
 from langgraph.prebuilt import ToolNode  # noqa: E402
 
-from agent_ratchet import Case, Suite, expect  # noqa: E402
-from agent_ratchet.integrations.langgraph import from_state, wrap  # noqa: E402
+from ai_agent_evaluation import Case, Suite, expect  # noqa: E402
+from ai_agent_evaluation.integrations.langgraph import from_state, wrap  # noqa: E402
 
 
 @lc_tool

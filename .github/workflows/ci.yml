@@ -62,8 +62,8 @@ jobs:
       - name: command line
         run: |
           cd /tmp
-          /tmp/env/bin/agent-ratchet run "$GITHUB_WORKSPACE/examples/quickstart/suite.py" --save-baseline
-          AGENT_VERSION=2 /tmp/env/bin/agent-ratchet run "$GITHUB_WORKSPACE/examples/quickstart/suite.py" && exit 1 || test $? -eq 1
+          /tmp/env/bin/ai-agent-evaluation run "$GITHUB_WORKSPACE/examples/quickstart/suite.py" --save-baseline
+          AGENT_VERSION=2 /tmp/env/bin/ai-agent-evaluation run "$GITHUB_WORKSPACE/examples/quickstart/suite.py" && exit 1 || test $? -eq 1
       - name: pytest
         run: |
           cd /tmp

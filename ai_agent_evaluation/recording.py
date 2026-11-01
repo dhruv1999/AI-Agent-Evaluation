@@ -1,7 +1,7 @@
 """Record tool calls from any Python agent, including hand written loops on the OpenAI,
 Anthropic or Gemini SDKs.
 
-    from agent_ratchet import tool, record_usage
+    from ai_agent_evaluation import tool, record_usage
 
     @tool
     def lookup_order(order_id: str) -> str: ...
@@ -22,7 +22,7 @@ from typing import Any, TypeVar, overload
 from .trajectory import ToolCall, Trajectory
 
 F = TypeVar("F", bound=Callable[..., Any])
-_current: ContextVar[Trajectory | None] = ContextVar("agent_ratchet_trajectory", default=None)
+_current: ContextVar[Trajectory | None] = ContextVar("ai_agent_evaluation_trajectory", default=None)
 
 
 def current() -> Trajectory | None:

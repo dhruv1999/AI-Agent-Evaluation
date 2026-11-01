@@ -1,4 +1,4 @@
-# Why agent-ratchet
+# Why ai-agent-evaluation
 
 ## The question we started with
 
@@ -41,16 +41,16 @@ So by our own rule, regression gating is no longer an open source gap. We weighe
 
 The problem is still real, and what remains unsolved is specific:
 
-- **Most gates check an average.** Langfuse's own guide warns that a better average can hide a regression on a critical case. agent-ratchet gives a verdict per behaviour.
-- **The statistical tools are costly or restrictive.** Fixed runs of about 50 per version are expensive on every pull request. AGPL rules out many companies. agent-ratchet adds runs only where a case looks worse, and it is MIT licensed.
-- **Setup is heavy.** Most need a server, a hosted dataset or a YAML config. agent-ratchet is Python checks and a baseline file, with native capture for six frameworks.
+- **Most gates check an average.** Langfuse's own guide warns that a better average can hide a regression on a critical case. ai-agent-evaluation gives a verdict per behaviour.
+- **The statistical tools are costly or restrictive.** Fixed runs of about 50 per version are expensive on every pull request. AGPL rules out many companies. ai-agent-evaluation adds runs only where a case looks worse, and it is MIT licensed.
+- **Setup is heavy.** Most need a server, a hosted dataset or a YAML config. ai-agent-evaluation is Python checks and a baseline file, with native capture for six frameworks.
 
 Moving to another problem without users would restart the clock. Shipping a sharper version of this one gets real feedback sooner.
 
 ## What review caught
 
 - **Our first rule was the problem we set out to solve.** It ran each case 3 times and failed on any 30 point drop. In simulation, a suite with just 10 cases that pass 90% of the time failed 89% of pull requests where nothing changed. The current rule uses a Fisher exact test per case, adjusts the bar across the suite (Tarone's method), and reruns only cases that look worse. In the same simulations, false alarms stay at 3% or less.
-- **The name clashed.** agent-regress-cli already uses the import name `agent_regress`, so installing both would break one. We renamed the project agent-ratchet before its first release.
+- **The name clashed.** agent-regress-cli already uses the import name `agent_regress`, so installing both would break one. We renamed the project AI Agent Evaluation before its first release.
 - **Baselines leaked data.** They stored full runs and were meant to be committed. They now hold only check names, pass or fail, cost and time.
 
 ## What we will not build

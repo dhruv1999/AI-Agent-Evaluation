@@ -5,7 +5,7 @@ Thanks for helping. Issues and pull requests are welcome.
 ## Setup
 
 ```bash
-git clone https://github.com/dhruv1999/Oversight-for-AI-Agents && cd Oversight-for-AI-Agents
+git clone https://github.com/dhruv1999/AI-Agent-Evaluation && cd AI-Agent-Evaluation
 uv sync
 uv run pytest
 uv run ruff check . && uv run ruff format --check . && uv run mypy
@@ -30,7 +30,7 @@ uv run python benchmarks/gate_simulation.py
 
 ## Guidelines
 
-- Keep the core free of dependencies. Framework code goes in `agent_ratchet/integrations/` and imports the framework inside functions.
+- Keep the core free of dependencies. Framework code goes in `ai_agent_evaluation/integrations/` and imports the framework inside functions.
 - Test integrations against the real framework with a scripted model, not mocks of the framework, so changes in the framework show up.
 - Checks must never call a model unless they are a judge, and a check that cannot decide must fail.
 - Saved baselines must never contain inputs, answers or tool data.
@@ -38,7 +38,7 @@ uv run python benchmarks/gate_simulation.py
 
 ## Adding an integration
 
-1. Add `agent_ratchet/integrations/<name>.py` with a function that turns the framework's output into a `Trajectory`, and a `wrap()` that runs the agent.
+1. Add `ai_agent_evaluation/integrations/<name>.py` with a function that turns the framework's output into a `Trajectory`, and a `wrap()` that runs the agent.
 2. If the framework's return value is easy to recognise, add it to `integrations/auto.py`.
 3. Add a test in `tests/` and an example in `examples/frameworks/`.
 4. Add a row to the README and a section to `docs/integrations.md`.

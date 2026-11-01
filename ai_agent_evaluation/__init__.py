@@ -1,13 +1,13 @@
-"""agent-ratchet: regression tests for AI agents. Your agent can get better; it cannot quietly get worse.
+"""ai-agent-evaluation: regression tests for AI agents. Your agent can get better; it cannot quietly get worse.
 
-    from agent_ratchet import Case, Suite, expect
+    from ai_agent_evaluation import Case, Suite, expect
 
     suite = Suite(agent=my_agent, cases=[
         Case("refund needs an order number", "Refund my last order",
              expect=[expect.never_calls("issue_refund"), expect.output_contains("order number")]),
     ])
 
-Save a baseline with `agent-ratchet run suite.py --save-baseline`. Later runs fail when a case
+Save a baseline with `ai-agent-evaluation run suite.py --save-baseline`. Later runs fail when a case
 gets worse by more than chance explains, or when a must pass case fails.
 """
 

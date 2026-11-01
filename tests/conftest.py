@@ -1,4 +1,4 @@
-from agent_ratchet import CaseResult, CheckResult, RunResult, SuiteResult, ToolCall, Trajectory
+from ai_agent_evaluation import CaseResult, CheckResult, RunResult, SuiteResult, ToolCall, Trajectory
 
 
 def traj(*tools, output="done", **kw):

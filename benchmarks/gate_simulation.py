@@ -2,7 +2,7 @@
 
 Simulated suites only: each case passes each run with a fixed probability. The baseline runs every
 case max_repeats times; a pull request runs it 3 times, and a case that looks worse gets topped up
-to max_repeats, exactly as Suite.run does. The verdict comes from agent_ratchet.compare.
+to max_repeats, exactly as Suite.run does. The verdict comes from ai_agent_evaluation.compare.
 
     python benchmarks/gate_simulation.py            # about two minutes
 """
@@ -15,8 +15,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from agent_ratchet import CaseResult, CheckResult, RunResult, SuiteResult, Trajectory, compare  # noqa: E402
-from agent_ratchet.suite import _looks_worse  # noqa: E402
+from ai_agent_evaluation import CaseResult, CheckResult, RunResult, SuiteResult, Trajectory, compare  # noqa: E402
+from ai_agent_evaluation.suite import _looks_worse  # noqa: E402
 
 FAIL = [CheckResult("check", False)]
 

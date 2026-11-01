@@ -1,5 +1,5 @@
 [project]
-name = "agent-ratchet"
+name = "ai-agent-evaluation"
 dynamic = ["version"]
 description = "Regression tests for AI agents that fail a pull request only when a behaviour really got worse."
 readme = "README.md"
@@ -18,11 +18,11 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/dhruv1999/Oversight-for-AI-Agents"
-Issues = "https://github.com/dhruv1999/Oversight-for-AI-Agents/issues"
+Homepage = "https://github.com/dhruv1999/AI-Agent-Evaluation"
+Issues = "https://github.com/dhruv1999/AI-Agent-Evaluation/issues"
 
 [project.scripts]
-agent-ratchet = "agent_ratchet.cli:main"
+ai-agent-evaluation = "ai_agent_evaluation.cli:main"
 
 [project.optional-dependencies]
 # only needed for model graded checks (expect.judge); everything else has no dependencies
@@ -38,10 +38,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "agent_ratchet/__init__.py"
+path = "ai_agent_evaluation/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["agent_ratchet"]
+packages = ["ai_agent_evaluation"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -55,7 +55,7 @@ target-version = "py310"
 select = ["E", "F", "I", "B", "UP"]
 
 [tool.mypy]
-packages = ["agent_ratchet"]
+packages = ["ai_agent_evaluation"]
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]

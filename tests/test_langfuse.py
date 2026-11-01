@@ -5,7 +5,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
 
-from agent_ratchet.integrations.langfuse import fetch_trace, from_trace
+from ai_agent_evaluation.integrations.langfuse import fetch_trace, from_trace
 
 TRACE = {
     "id": "tr-1",
