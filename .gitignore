@@ -1,8 +1,8 @@
-.venv/
-__pycache__/
 *.egg-info/
-dist/
+.mypy_cache/
 .pytest_cache/
 .ruff_cache/
-.mypy_cache/
-.ai-agent-evaluation/
+.venv/
+__pycache__/
+dist/
+eval-results/

@@ -2,16 +2,12 @@
 
 ## 0.1.0
 
-First release of ai-agent-evaluation.
+First release: should your agent switch models?
 
-- Behaviour checks for tool calls, arguments, order, errors, answers, cost, tokens and time
-- Repeated runs per case, with extra runs only for cases that look worse than the baseline
-- Verdicts from a Fisher exact test per case, with Tarone's adjustment so a suite with no real change rarely fails
-- Must pass cases that fail the build on any failed run
-- Baselines that hold no prompts, answers or tool data, safe to commit
-- Run timeouts, and retries for provider errors such as rate limits
-- Command line with CI exit codes and a Markdown summary for GitHub Actions, plus a pytest helper
-- Integrations for LangGraph, CrewAI, OpenAI Agents SDK, Google ADK, Claude Agent SDK, Langfuse and OpenTelemetry GenAI
-- `@tool` and `record_response` for plain Python agents on the OpenAI, Anthropic and Gemini SDKs
-- Optional model graders on Claude, OpenAI, Azure OpenAI and Gemini
-- Turn a production trace into a test case
+- `ai-agent-evaluation compare` runs a suite on a current and a candidate model and answers pass, regressed or not enough data
+- Non-inferiority test on the suite with a margin (10 points by default), in two looks with O'Brien and Fleming boundaries
+- Must pass cases, tested with Fisher's exact test and a Holm correction, or strict on any failure
+- Provider outages from the OpenAI and Anthropic SDKs kept out of the score, with a hook for others
+- A decision report in the console and Markdown, plus eval-verdict.json, with cost and speed per model
+- Smoke mode, a pytest helper and a GitHub workflow to copy
+- A keyless XPath healing example and a benchmark against running each case once

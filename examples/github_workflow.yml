@@ -1,17 +1,26 @@
-# Copy to .github/workflows/ai-agent-evaluation.yml. Runs your suite on every pull request and fails the
-# check when a case is worse than the baseline committed in .ai-agent-evaluation/ by more than chance explains.
-name: agent regression tests
-on: pull_request
+# Copy to .github/workflows/model-swap.yml. Run it by hand (Actions tab, Run workflow) when you are
+# thinking about a new model. The report is saved as a build artifact and shown on the run's page.
+name: model swap
+on:
+  workflow_dispatch:
+    inputs:
+      candidate:
+        description: "model to compare against the current one"
+        required: true
 jobs:
-  ai-agent-evaluation:
+  compare:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt git+https://github.com/dhruv1999/AI-Agent-Evaluation
-      - run: ai-agent-evaluation run tests/agent_suite.py
+      - run: ai-agent-evaluation compare tests/agent_suite.py --baseline-model gpt-current --candidate-model "${{ inputs.candidate }}"
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: model-swap-report
+          path: eval-results/

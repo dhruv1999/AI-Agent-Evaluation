@@ -25,47 +25,33 @@ jobs:
       # any file I/O that relies on the platform's default encoding fails the build (it breaks on Windows)
       - run: uv run python -X warn_default_encoding -W error::EncodingWarning -m pytest -q
 
-  frameworks:
-    # each integration against the real framework, driven by a scripted model (no API keys)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.12"
-      - run: uv sync
-      - run: >-
-          uv run --with openai-agents --with langgraph --with langchain-core --with google-adk
-          --with claude-agent-sdk --with opentelemetry-sdk --with anthropic --with openai --with google-genai
-          pytest -q -rs
-
-  crewai:
-    # separate job: CrewAI pins its own versions of shared dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.12"
-      - run: uv sync
-      - run: uv run --with crewai pytest -q tests/test_crewai.py
-
   install-from-scratch:
-    # what a new user does: pip install into a clean environment, then run the quickstart from another folder
+    # what a new user does: pip install into a clean environment, then run the example from another folder
     runs-on: ubuntu-latest
+    env:
+      DEMO_SEED: "7"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: python -m venv /tmp/env && /tmp/env/bin/pip install . pytest
-      - name: command line
+      - name: compare
         run: |
           cd /tmp
-          /tmp/env/bin/ai-agent-evaluation run "$GITHUB_WORKSPACE/examples/quickstart/suite.py" --save-baseline
-          AGENT_VERSION=2 /tmp/env/bin/ai-agent-evaluation run "$GITHUB_WORKSPACE/examples/quickstart/suite.py" && exit 1 || test $? -eq 1
+          S="$GITHUB_WORKSPACE/examples/xpath_healing/suite.py"
+          /tmp/env/bin/ai-agent-evaluation compare "$S" --baseline-model model-old --candidate-model model-new --seed 7
+          /tmp/env/bin/ai-agent-evaluation compare "$S" --baseline-model model-old --candidate-model model-mini --seed 7 && exit 1 || test $? -eq 1
+          /tmp/env/bin/ai-agent-evaluation compare "$S" --baseline-model model-old --candidate-model model-new --smoke
       - name: pytest
-        run: |
-          cd /tmp
-          /tmp/env/bin/python -m pytest -q "$GITHUB_WORKSPACE/examples/quickstart"
-          AGENT_VERSION=2 /tmp/env/bin/python -m pytest -q "$GITHUB_WORKSPACE/examples/quickstart" && exit 1 || test $? -eq 1
+        run: cd /tmp && /tmp/env/bin/python -m pytest -q "$GITHUB_WORKSPACE/examples/xpath_healing"
+
+  benchmark:
+    # the numbers in the docs come from this script; make sure it still runs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python benchmarks/model_swap_benchmark.py --sims 200

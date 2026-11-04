@@ -4,71 +4,72 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 
-**Regression tests for AI agents. Your agent can get better. It can't quietly get worse.**
+**Should your agent switch models? Find out in an afternoon, not a day.**
 
-AI Agent Evaluation runs each test case several times, compares the pass rates with a baseline saved in your repo, and fails a pull request only when a behaviour got worse by more than chance explains.
+Run your agent's test cases on the model you use today and the one you are considering. You get one honest answer, **pass**, **regressed** or **not enough data**, with the cost and speed of each model next to it.
 
 ```text
-case                            passed  baseline  status     cost     time
-------------------------------  ------  --------  ---------  -------  ----
-order status                    3/3     10/10     ok         $0.0019  0.0s
-small refund is handled         3/3     10/10     ok         $0.0019  0.0s
-large refund goes to a manager  0/10    10/10     REGRESSED  $0.0019  0.0s
-asks for the order number       3/3     10/10     ok         $0.0019  0.0s
+Model swap: model-old -> model-new   (suite xpath_healing, 30 cases)
 
-large refund goes to a manager: passed 0/10, baseline 10/10. A drop this large happens by chance under 0.1% of the time.
-  calls escalate_to_human(order_id='77'): failed 10/10, baseline 0/10 (never called escalate_to_human; called ['lookup_order', 'issue_refund'])
-  never calls issue_refund: failed 10/10, baseline 0/10 (called issue_refund)
+PASS. The new model is at most 4.1 points worse, inside your 10 point margin.
+Changes up to 10 points worse are accepted; change this with --margin.
+
+                 model-old   model-new
+pass rate            95.6%       97.2%
+cost per run       $0.0010     $0.0003   73% lower
+median time          0.02s       0.01s   34% faster
+
+Must pass:
+  claims: submit-claim: 6/6 -> 6/6  ok
+  payment: pay: 6/6 -> 6/6  ok
 ```
 
 ## The problem
 
-- **Agents are random.** The same test passes on Monday and fails on Tuesday. A check that fails at random gets ignored, then switched off.
-- **Averages hide breakage.** A suite score can stay flat while the one flow your customers rely on breaks.
-- **Enough runs cost money.** Running every case ten times on every pull request is expensive, so teams run too few and end up reading noise.
+A newer or cheaper model comes out, or the old one is retired. Before switching, someone has to rerun every test case on the new model and compare the results by hand.
+
+- **It is slow.** A day of reruns and side by side reading for one decision.
+- **One run per case proves little.** Agents answer differently every time. In our simulations, comparing one run per case flagged a regression in 48% to 100% of swaps where nothing had changed.
+- **Nobody can say what "about the same" means.** Does it include the payments flow? Is the new model 3 points worse or 15?
+- **Cost and speed sit somewhere else.** They are usually the reason to switch, but they are not on the same page as quality.
 
 ## Who it is for
 
-- **Teams with an agent in production** that change prompts, models or tools every week.
-- **Engineers who review agent changes in pull requests** and want a check they can trust like a unit test.
-- **Teams that can't send traces to a hosted eval vendor.** Everything runs in your CI, and the baseline is a file in your repo.
-
-## How it compares
-
-Several tools can now gate agent changes in CI. Each is good at something different.
-
-| Tool | Good at | Choose AI Agent Evaluation if you want |
-|---|---|---|
-| Braintrust, LangSmith (paid) | Hosted experiments, dashboards and team review | It free, local and inside your repo |
-| Langfuse experiments (open source, CI gates since May 2026) | Gating on scores when you already run Langfuse | Verdicts per behaviour, with no server to run |
-| promptfoo (open source, owned by OpenAI) | Prompt comparisons and red teaming | Tests about agent steps, written in Python |
-| DeepEval, Google ADK eval (open source) | pytest style metrics against fixed thresholds | Pass rates compared with your own baseline |
-| llmci, agent-regress-cli, AgentAssay (open source) | Statistical gates, built on YAML configs, 50 runs per version, or an AGPL license | Readable checks in Python, extra runs only where needed, MIT |
-
-The reasoning and sources are in [docs/why.md](docs/why.md).
+- **Developers on small teams** whose agent already has test cases, or a script that runs it a few times.
+- **Agents whose results code can check:** the healed XPath finds the right element, the right tool was called, the output parses. Answers that need a person or a model to grade them are not supported yet.
 
 ## What it does
 
-- **Behaviour checks.** Say what the agent must and must not do: which tools, with which arguments, in what order, and what the answer says. *(deterministic, no model calls)*
-- **Repeated runs, extra runs only where unclear.** Every case runs 3 times. A case that looks worse than its baseline runs up to 10 times before anything is decided. *(adaptive sampling)*
-- **Verdicts you can trust.** A drop fails the build only when it is too large to be chance, with the bar set so a suite with no real change fails less than 5% of the time. *(Fisher exact test, suite wide false alarm control)*
-- **Must pass cases.** Mark a guardrail and any single failure fails the build. *(zero tolerance)*
-- **Cost and speed budgets.** Fail when a change makes the agent much slower or more expensive. *(token cost, latency)*
-- **Works where you already test.** A command line, a pytest helper and a summary on every GitHub pull request.
-- **Production traces to tests.** Turn a Langfuse or OpenTelemetry trace into a test case in one command.
+- **Runs both models on your cases**, 6 runs per case per model, shuffled so a slow minute at the provider hits both alike.
+- **Gives one answer for the suite:** pass if the new model is at most your margin worse (10 points by default), regressed if it is clearly worse, not enough data if the runs cannot tell. *(non-inferiority test)*
+- **Stops early when the answer is already clear,** after half the runs. *(two looks)*
+- **Never lets a critical case hide in the average.** Mark it must pass and it can fail the comparison on its own.
+- **Keeps provider outages out of the score.** Rate limits and server errors are counted separately, not blamed on the model.
+- **Puts cost and speed next to quality,** from token counts and the prices you enter.
+- **Works where you test:** a command, a pytest helper, and a GitHub workflow you can copy.
 
 ## Quickstart
 
-No API key needed. The example agent is a few lines of plain Python.
+No API key needed. The example is an XPath healing agent with simulated models.
 
 ```bash
 git clone https://github.com/dhruv1999/AI-Agent-Evaluation && cd AI-Agent-Evaluation
 pip install -e .
-ai-agent-evaluation run examples/quickstart/suite.py --save-baseline
-AGENT_VERSION=2 ai-agent-evaluation run examples/quickstart/suite.py
+ai-agent-evaluation compare examples/xpath_healing/suite.py --baseline-model model-old --candidate-model model-new
+ai-agent-evaluation compare examples/xpath_healing/suite.py --baseline-model model-old --candidate-model model-mini
 ```
 
-The second run simulates a prompt change that makes the agent refund large orders itself instead of passing them to a manager. It prints the table at the top of this page and exits with code 1.
+The first prints the result at the top of this page. The second compares a much cheaper model that mostly misses two critical buttons:
+
+```text
+REGRESSED. Must pass cases dropped: claims: submit-claim (6/6 -> 2/6), payment: pay (6/6 -> 1/6).
+
+                  model-old   model-mini
+pass rate             95.6%        84.4%
+cost per run        $0.0010      $0.0001   92% lower
+```
+
+Each comparison also writes `eval-results/eval-report.md` and `eval-results/eval-verdict.json`.
 
 To use it in your own project:
 
@@ -76,115 +77,82 @@ To use it in your own project:
 pip install git+https://github.com/dhruv1999/AI-Agent-Evaluation
 ```
 
-## Writing a suite
+## Your own suite
 
-A suite is a Python file with your agent and the cases it must handle.
+A suite is one Python file: your agent as a function of the case input and the model name, and the cases with a check each.
 
 ```python
-from ai_agent_evaluation import Case, Suite, expect
-from ai_agent_evaluation.integrations.langgraph import wrap
-from my_app import graph
+from ai_agent_evaluation import Case, Suite, record_response
+
+def agent(case, model):
+    response = client.chat.completions.create(model=model, messages=build_messages(case))
+    record_response(response)                     # tokens, for the cost column
+    return parse(response)
+
+def finds_submit_button(xpath):                   # return False, or raise AssertionError, to fail a run
+    assert matches_exactly(page, xpath, "submit")
 
 suite = Suite(
-    agent=wrap(graph),
+    agent=agent,
     cases=[
-        Case("order status", "Where is order 42?", [
-            expect.calls("lookup_order", order_id="42"),
-            expect.output_contains("shipped"),
-        ]),
-        Case("large refund", "Refund order 77", [
-            expect.calls("escalate_to_human"),
-            expect.never_calls("issue_refund"),
-        ], must_pass=True),
+        Case("submit button", page, check=finds_submit_button, must_pass=True),
+        # ... more cases
     ],
+    prices={"gpt-current": (2.50, 10.00), "gpt-cheaper": (0.40, 1.60)},   # USD per million tokens
 )
 ```
 
 ```bash
-ai-agent-evaluation run tests/agent_suite.py --save-baseline   # once, on a version you trust
-ai-agent-evaluation run tests/agent_suite.py                   # on every change
+ai-agent-evaluation compare agent_suite.py --baseline-model gpt-current --candidate-model gpt-cheaper
 ```
 
-Commit `.ai-agent-evaluation/*.baseline.json`. It holds check names, pass or fail, cost and time: no prompts, answers or tool data. The full results of the last run stay in `*.latest.json`, which is kept out of git automatically.
+Start with `--smoke` for a single quick run per case. It checks your setup and is labelled as not a verdict.
 
-## Running in CI or pytest
+## Results and exit codes
 
-GitHub Actions:
+| Answer | Meaning | Exit code |
+|---|---|---|
+| **pass** | The new model is at most your margin worse | 0 |
+| **regressed** | Clearly worse than your margin, or a must pass case clearly dropped | 1 |
+| **not enough data** | The runs could not tell. The report suggests how many runs would | 10, or 0 with `--on-inconclusive warn` |
+| **errors** | More than 20% of runs failed at the provider, so there is no verdict | 11 |
 
-```yaml
-- run: ai-agent-evaluation run tests/agent_suite.py
-  env:
-    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-```
-
-The results table appears on the pull request's checks page. A full workflow is in [examples/github_workflow.yml](examples/github_workflow.yml).
-
-pytest:
+In pytest:
 
 ```python
-from ai_agent_evaluation import assert_no_regressions
+from ai_agent_evaluation import assert_model_swap
 from agent_suite import suite
 
-def test_support_agent():
-    assert_no_regressions(suite)
+def test_switch_to_cheaper_model():
+    assert_model_swap(suite, "gpt-current", "gpt-cheaper")
 ```
 
-Run `AI_AGENT_EVALUATION_UPDATE=1 pytest` to save or refresh the baseline.
+## How well it works
 
-## How it decides
+From 2,000 simulated model swaps per row, with the defaults (6 runs per case per model, 10 point margin), on a 40 case suite with a mix of stable and flaky cases. Full tables: [docs/how-it-decides.md](docs/how-it-decides.md).
 
-1. Each case runs 3 times. The baseline ran it 10 times, once.
-2. A case that does worse than its baseline gets more runs, up to 10. Cases that look fine cost nothing extra.
-3. A case regresses when its drop is too large to be chance. The bar adjusts for how many cases could have regressed, so adding stable cases never makes the check less sensitive.
-4. A must pass case fails the build on any failed run.
-5. A case whose input or checks changed is reported as changed, not compared.
+| The new model really is | This library | Running each case once |
+|---|---|---|
+| The same | passes 99.0%, never says regressed | says regressed 91.6% of the time |
+| 10 points worse (exactly the margin) | passes only 2.1% | says regressed 99.9% |
+| 20 points worse | says regressed 88.3%, never passes | says regressed 100% |
+| A must pass case breaks, the rest the same | fails it 100% | flags it 100%, along with most unchanged swaps |
 
-What that means, from 2,000 simulated pull requests per row ([benchmarks/gate_simulation.py](benchmarks/gate_simulation.py)):
-
-- **False alarms:** 3% or less in every simulated suite, from 50 stable cases to 200 cases with 50 flaky ones.
-- **Real drops,** one case among 49 others, 19 of them flaky:
-
-| A case that passed... | ...now passes | Caught (default, up to 10 runs) | Caught (up to 20 runs) |
-|---|---|---|---|
-| 100% | 0% | 100% | 100% |
-| 100% | 30% | 84% | 98% |
-| 100% | 50% | 37% | 85% |
-| 100% | 70% | 5% | 31% |
-
-Big breaks are caught cheaply. Smaller drops need more runs, which you can buy with `--max-repeats 20`.
-
-## What it costs to run
-
-- **Every pull request:** cases × 3 runs, plus up to 7 more for each case that looks worse. A 50 case suite with some flaky cases averaged about 210 agent runs.
-- **A baseline:** cases × 10 runs, once.
-- The report shows the total cost of each run.
-
-## Integrations
-
-| Framework or tool | How |
-|---|---|
-| LangGraph and LangChain | `integrations.langgraph.wrap(graph)` |
-| CrewAI | `integrations.crewai.wrap(build_crew)` |
-| OpenAI Agents SDK | `integrations.openai_agents.wrap(agent)` |
-| Google ADK | `integrations.google_adk.wrap(agent)` |
-| Claude Agent SDK | `integrations.claude_agent_sdk.wrap(options)` |
-| Langfuse | `ai-agent-evaluation import langfuse <trace-id>` |
-| OpenTelemetry GenAI | `ai-agent-evaluation import otel spans.json` |
-| Plain Python on the OpenAI, Anthropic or Gemini SDKs | `@tool` on your tool functions and `record_response(response)` |
-
-Each integration is tested against the real framework with a scripted model. Examples are in [examples/frameworks](examples/frameworks) and setup notes in [docs/integrations.md](docs/integrations.md). For checks that rules can't express, model graders on Claude, OpenAI, Azure OpenAI and Gemini are built in.
+**The honest limits:**
+- **Small suites need more runs.** With 10 cases, 6 runs settle only about half of unchanged swaps. Use `--runs 16`.
+- **Very flaky agents need more runs too.** Where cases pass about 70% of the time, 27% of unchanged swaps end as not enough data.
+- **Judgement calls are out of scope.** Agents whose answers need an LLM judge are not supported in this version.
 
 ## Roadmap
 
-- Record and replay tool results, so CI runs never touch real systems.
-- Stop early when a result is already clear, to cut runs further.
-- Multi turn cases with a simulated user.
+- Run on every pull request, with a comment on the pull request and a cached baseline.
+- Retries that wait out rate limits, and stopping early during an outage.
+- Answers graded by an LLM judge, with a check for judge drift.
+- Reports across more than two models.
 
 ## Docs
 
-- [Guide](docs/guide.md): checks, baselines, verdicts, budgets, CI, pytest and model graders
-- [Integrations](docs/integrations.md): setup for every framework
-- [Why this exists](docs/why.md): the problem we picked, what changed, and the options we weighed
+- [How it decides](docs/how-it-decides.md): the statistics, provider errors, and the full benchmark
 - [Contributing](CONTRIBUTING.md)
 
 MIT licensed.
