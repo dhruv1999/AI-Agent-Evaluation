@@ -8,6 +8,8 @@
 
     suite = Suite(agent=heal, cases=[Case("submit button", page, check=finds_submit, must_pass=True)])
 
+Cases can also come from a JSONL or CSV file: Suite.from_file("cases.jsonl", agent=heal).
+
 Checks must be decided by code: the right element found, the right tool called, valid output.
 Answers that need a person or a model to grade them are out of scope for now.
 """
@@ -81,3 +83,29 @@ class Suite:
         if self.timeout is not None and self.timeout <= 0:
             raise ValueError("timeout must be positive, or None")
         self.name = str(self.name or getattr(self.agent, "__name__", "suite"))
+
+    @classmethod
+    def from_file(
+        cls,
+        path: str,
+        agent: Callable[..., Any],
+        *,
+        check: Callable[..., Any] | None = None,
+        checks: dict[str, Callable[..., Any]] | None = None,
+        **settings: Any,
+    ) -> Suite:
+        """A suite whose cases come from a JSONL or CSV file (see ai_agent_evaluation.cases).
+
+        A relative path is read next to the file that calls this, so the suite works from any folder."""
+        import inspect
+        from pathlib import Path
+
+        from .cases import load_cases
+
+        file = Path(path)
+        if not file.is_absolute():
+            caller = inspect.stack()[1].filename
+            beside = Path(caller).resolve().parent / file
+            file = beside if beside.exists() else file
+        settings.setdefault("name", file.stem)
+        return cls(agent=agent, cases=load_cases(file, check=check, checks=checks), **settings)

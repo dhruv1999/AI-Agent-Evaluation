@@ -1,0 +1,15 @@
+[
+ {"id": "RUN-101", "name": "Stride Lite running shoe", "category": "running shoes", "price": 79, "sizes": ["8", "9", "10", "11"], "in_stock": true},
+ {"id": "RUN-102", "name": "Stride Pro running shoe", "category": "running shoes", "price": 129, "sizes": ["9", "10", "11", "12"], "in_stock": true},
+ {"id": "RUN-103", "name": "Trail Grip running shoe", "category": "running shoes", "price": 95, "sizes": ["10", "11"], "in_stock": false},
+ {"id": "RUN-104", "name": "Daily Miles running shoe", "category": "running shoes", "price": 64, "sizes": ["7", "8", "9"], "in_stock": true},
+ {"id": "HP-201", "name": "Quiet One headphones", "category": "headphones", "price": 199, "in_stock": true},
+ {"id": "HP-202", "name": "Commute Buds headphones", "category": "headphones", "price": 59, "in_stock": true},
+ {"id": "HP-203", "name": "Studio Wired headphones", "category": "headphones", "price": 89, "in_stock": false},
+ {"id": "BAG-301", "name": "City 20L backpack", "category": "backpacks", "price": 45, "in_stock": true},
+ {"id": "BAG-302", "name": "Trek 35L backpack", "category": "backpacks", "price": 110, "in_stock": true},
+ {"id": "JKT-401", "name": "Drizzle rain jacket", "category": "rain jackets", "price": 70, "sizes": ["S", "M", "L"], "in_stock": true},
+ {"id": "JKT-402", "name": "Storm Shell rain jacket", "category": "rain jackets", "price": 150, "sizes": ["M", "L", "XL"], "in_stock": true},
+ {"id": "COF-501", "name": "Pour Over coffee maker", "category": "coffee makers", "price": 35, "in_stock": true},
+ {"id": "COF-502", "name": "Barista Home coffee maker", "category": "coffee makers", "price": 240, "in_stock": true}
+]

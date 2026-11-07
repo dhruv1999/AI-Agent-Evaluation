@@ -1,0 +1,30 @@
+{"name": "cheapest running shoes size 10", "input": "Find running shoes in size 10", "expected": {"action": "recommend", "product_id": "RUN-101"}}
+{"name": "running shoes under $100 size 10", "input": "Find running shoes under $100 in size 10", "expected": {"action": "recommend", "product_id": "RUN-101"}, "must_pass": true}
+{"name": "running shoes under $70 size 8", "input": "Find running shoes under $70 in size 8", "expected": {"action": "recommend", "product_id": "RUN-104"}}
+{"name": "running shoes size 12", "input": "I need running shoes in size 12", "expected": {"action": "recommend", "product_id": "RUN-102"}}
+{"name": "running shoes no size", "input": "Find running shoes under $120", "expected": {"action": "ask"}}
+{"name": "running shoes size 7 under $60", "input": "Find running shoes under $60 in size 7", "expected": {"action": "none"}}
+{"name": "headphones under $100", "input": "I need headphones under $100", "expected": {"action": "recommend", "product_id": "HP-202"}, "must_pass": true}
+{"name": "headphones under $250", "input": "Show me headphones under $250", "expected": {"action": "recommend", "product_id": "HP-202"}}
+{"name": "headphones under $40", "input": "Any headphones under $40?", "expected": {"action": "none"}}
+{"name": "headphones any price", "input": "I want headphones", "expected": {"action": "recommend", "product_id": "HP-202"}}
+{"name": "backpack under $50", "input": "Find backpacks under $50", "expected": {"action": "recommend", "product_id": "BAG-301"}}
+{"name": "backpack under $150", "input": "I need backpacks under $150 for hiking", "expected": {"action": "recommend", "product_id": "BAG-301"}}
+{"name": "backpack under $30", "input": "Backpacks under $30 please", "expected": {"action": "none"}}
+{"name": "rain jacket size M", "input": "Find rain jackets in size M", "expected": {"action": "recommend", "product_id": "JKT-401"}}
+{"name": "rain jacket size XL", "input": "I need rain jackets in size XL", "expected": {"action": "recommend", "product_id": "JKT-402"}}
+{"name": "rain jacket no size", "input": "Show me rain jackets under $200", "expected": {"action": "ask"}}
+{"name": "rain jacket size S under $60", "input": "Rain jackets under $60 in size S", "expected": {"action": "none"}}
+{"name": "coffee maker under $50", "input": "Find coffee makers under $50", "expected": {"action": "recommend", "product_id": "COF-501"}}
+{"name": "coffee maker under $300", "input": "Coffee makers under $300", "expected": {"action": "recommend", "product_id": "COF-501"}}
+{"name": "coffee maker any", "input": "I want coffee makers", "expected": {"action": "recommend", "product_id": "COF-501"}}
+{"name": "running shoes size 11 under $130", "input": "Find running shoes under $130 in size 11", "expected": {"action": "recommend", "product_id": "RUN-101"}}
+{"name": "running shoes size 9 under $80", "input": "Running shoes under $80 in size 9", "expected": {"action": "recommend", "product_id": "RUN-104"}}
+{"name": "headphones under $60", "input": "Headphones under $60 for the gym", "expected": {"action": "recommend", "product_id": "HP-202"}}
+{"name": "backpack any", "input": "Show me backpacks", "expected": {"action": "recommend", "product_id": "BAG-301"}}
+{"name": "rain jacket size L under $100", "input": "Rain jackets under $100 in size L", "expected": {"action": "recommend", "product_id": "JKT-401"}}
+{"name": "running shoes size 13", "input": "Find running shoes in size 13", "expected": {"action": "none"}}
+{"name": "coffee maker under $20", "input": "Coffee makers under $20", "expected": {"action": "none"}}
+{"name": "headphones under $200", "input": "Headphones under $200 with noise cancelling", "expected": {"action": "recommend", "product_id": "HP-202"}}
+{"name": "rain jacket size M under $160", "input": "Find rain jackets under $160 in size M", "expected": {"action": "recommend", "product_id": "JKT-401"}}
+{"name": "running shoes size 10 under $90", "input": "Running shoes under $90 in size 10", "expected": {"action": "recommend", "product_id": "RUN-101"}}

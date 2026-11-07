@@ -13,9 +13,22 @@ The answer is pass, regressed or not enough data, with cost and speed for each m
 
 __version__ = "0.1.0"
 
+from .cases import contains_expected, equals_expected, load_cases, matches_expected  # noqa: E402
 from .compare import SwapResult, compare_models  # noqa: E402
 from .recording import record_response, record_usage  # noqa: E402
 from .suite import Case, Suite  # noqa: E402
 from .testing import assert_model_swap  # noqa: E402
 
-__all__ = ["Case", "Suite", "SwapResult", "assert_model_swap", "compare_models", "record_response", "record_usage"]
+__all__ = [
+    "Case",
+    "Suite",
+    "SwapResult",
+    "assert_model_swap",
+    "compare_models",
+    "contains_expected",
+    "equals_expected",
+    "load_cases",
+    "matches_expected",
+    "record_response",
+    "record_usage",
+]

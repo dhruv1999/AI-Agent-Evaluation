@@ -1,0 +1,4 @@
+name,input,expected,must_pass
+budget running shoes,"Find running shoes under $100 in size 10","{""action"": ""recommend"", ""product_id"": ""RUN-101""}",true
+shoes without a size,Find running shoes under $120,"{""action"": ""ask""}",false
+nothing fits,Any headphones under $40?,"{""action"": ""none""}",false

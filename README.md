@@ -8,21 +8,7 @@
 
 Run your agent's test cases on the model you use today and the one you are considering. You get one honest answer, **pass**, **regressed** or **not enough data**, with the cost and speed of each model next to it.
 
-```text
-Model swap: model-old -> model-new   (suite xpath_healing, 30 cases)
-
-PASS. The new model is at most 4.1 points worse, inside your 10 point margin.
-Changes up to 10 points worse are accepted; change this with --margin.
-
-                 model-old   model-new
-pass rate            95.6%       97.2%
-cost per run       $0.0010     $0.0003   73% lower
-median time          0.02s       0.01s   34% faster
-
-Must pass:
-  claims: submit-claim: 6/6 -> 6/6  ok
-  payment: pay: 6/6 -> 6/6  ok
-```
+![A shopping assistant compared on two models: test cases in, one answer out](docs/images/shopping-example.png)
 
 ## The problem
 
@@ -36,7 +22,7 @@ A newer or cheaper model comes out, or the old one is retired. Before switching,
 ## Who it is for
 
 - **Developers on small teams** whose agent already has test cases, or a script that runs it a few times.
-- **Agents whose results code can check:** the healed XPath finds the right element, the right tool was called, the output parses. Answers that need a person or a model to grade them are not supported yet.
+- **Agents whose results code can check:** the right product was recommended, the right tool was called, the output parses. Answers that need a person or a model to grade them are not supported yet.
 
 ## What it does
 
@@ -48,63 +34,106 @@ A newer or cheaper model comes out, or the old one is retired. Before switching,
 - **Puts cost and speed next to quality,** from token counts and the prices you enter.
 - **Works where you test:** a command, a pytest helper, and a GitHub workflow you can copy.
 
-## Quickstart
+## Example: a shopping assistant
 
-No API key needed. The example is an XPath healing agent with simulated models.
+A shopping assistant reads a request, searches a product catalog with a `search_products` tool, and either recommends one product, asks a question, or says nothing fits. It is written for the OpenAI Python SDK, with tool calling. To run without an API key, it also has simulated models (`large-model`, `small-model`, `tiny-model`) with different accuracy.
+
+**1. The test cases** are a JSONL file, one shopper request per line with the answer it should get ([examples/shopping_assistant/cases.jsonl](examples/shopping_assistant/cases.jsonl)):
+
+```jsonl
+{"name": "running shoes under $100 size 10", "input": "Find running shoes under $100 in size 10", "expected": {"action": "recommend", "product_id": "RUN-101"}, "must_pass": true}
+{"name": "running shoes no size", "input": "Find running shoes under $120", "expected": {"action": "ask"}}
+{"name": "headphones under $40", "input": "Any headphones under $40?", "expected": {"action": "none"}}
+```
+
+**2. The suite** points at the agent and the file ([examples/shopping_assistant/suite.py](examples/shopping_assistant/suite.py)):
+
+```python
+from agent import shopping_agent          # shopping_agent(request, model) returns {"action", "product_id", "message"}
+from ai_agent_evaluation import Suite
+
+suite = Suite.from_file(
+    "cases.jsonl",
+    agent=shopping_agent,
+    prices={"large-model": (2.00, 8.00), "small-model": (0.40, 1.60)},   # USD per million tokens
+)
+```
+
+**3. Run it:**
 
 ```bash
 git clone https://github.com/dhruv1999/AI-Agent-Evaluation && cd AI-Agent-Evaluation
 pip install -e .
-ai-agent-evaluation compare examples/xpath_healing/suite.py --baseline-model model-old --candidate-model model-new
-ai-agent-evaluation compare examples/xpath_healing/suite.py --baseline-model model-old --candidate-model model-mini
+ai-agent-evaluation compare examples/shopping_assistant/suite.py --baseline-model large-model --candidate-model small-model
 ```
 
-The first prints the result at the top of this page. The second compares a much cheaper model that mostly misses two critical buttons:
+**4. The output:**
 
 ```text
-REGRESSED. Must pass cases dropped: claims: submit-claim (6/6 -> 2/6), payment: pay (6/6 -> 1/6).
+Model swap: large-model -> small-model   (suite shopping_assistant, 30 cases)
 
-                  model-old   model-mini
-pass rate             95.6%        84.4%
-cost per run        $0.0010      $0.0001   92% lower
+PASS. The new model is at most 6.4 points worse, inside your 10 point margin.
+Changes up to 10 points worse are accepted; change this with --margin.
+
+                 large-model   small-model
+pass rate              96.1%         95.6%
+cost per run         $0.0023       $0.0005   80% lower
+median time            0.02s         0.01s   50% faster
+
+Must pass:
+  running shoes under $100 size 10: 6/6 -> 6/6  ok
+  headphones under $100: 6/6 -> 6/6  ok
+
+Runs: 360 of a 360 budget, stopped at look 2 of 2. Seed 7.
 ```
 
-Each comparison also writes `eval-results/eval-report.md` and `eval-results/eval-verdict.json`.
+Compare with `tiny-model`, which often ignores the shopper's budget, and the answer changes:
 
-To use it in your own project:
+```text
+REGRESSED. The new model is at least 16.1 points worse, beyond your 10 point margin.
+
+                 large-model    tiny-model
+pass rate              95.6%         63.3%
+cost per run         $0.0023       $0.0001   95% lower
+```
+
+It stopped after half the runs, because the answer was already clear. Each comparison also writes `eval-results/eval-report.md` and `eval-results/eval-verdict.json`.
+
+**With real OpenAI models:** set `OPENAI_API_KEY` and `SHOP_LIVE=1`, pass real model names, and give their prices with `--price MODEL=INPUT,OUTPUT`. The output above comes from the simulated models (with `DEMO_SEED=7 ... --seed 7`), not from real ones.
+
+To use the library in your own project:
 
 ```bash
 pip install git+https://github.com/dhruv1999/AI-Agent-Evaluation
 ```
 
-## Your own suite
+## Test case files
 
-A suite is one Python file: your agent as a function of the case input and the model name, and the cases with a check each.
+Cases come from **JSONL** (one JSON object per line) or **CSV** (one row per case, editable in Excel or Google Sheets).
 
-```python
-from ai_agent_evaluation import Case, Suite, record_response
+| Field | Required | Meaning |
+|---|---|---|
+| `input` | yes | What the agent receives: text, or any JSON value |
+| `expected` | usually | What a correct answer contains. `expected_output` and `target` also work, so datasets from other eval tools load as they are |
+| `name` | no | A unique name; defaults to "case 1", "case 2" |
+| `must_pass` | no | `true` lets this case fail the comparison on its own |
+| `strict` | no | `true` fails the comparison on any single failed run of this case |
+| `check` | no | Which check to use for this case |
 
-def agent(case, model):
-    response = client.chat.completions.create(model=model, messages=build_messages(case))
-    record_response(response)                     # tokens, for the cost column
-    return parse(response)
-
-def finds_submit_button(xpath):                   # return False, or raise AssertionError, to fail a run
-    assert matches_exactly(page, xpath, "submit")
-
-suite = Suite(
-    agent=agent,
-    cases=[
-        Case("submit button", page, check=finds_submit_button, must_pass=True),
-        # ... more cases
-    ],
-    prices={"gpt-current": (2.50, 10.00), "gpt-cheaper": (0.40, 1.60)},   # USD per million tokens
-)
+```csv
+name,input,expected,must_pass
+budget running shoes,"Find running shoes under $100 in size 10","{""action"": ""recommend"", ""product_id"": ""RUN-101""}",true
+shoes without a size,Find running shoes under $120,"{""action"": ""ask""}",false
 ```
 
-```bash
-ai-agent-evaluation compare agent_suite.py --baseline-model gpt-current --candidate-model gpt-cheaper
-```
+**Checks.** By default each run is compared with `expected`:
+- `matches_expected` (default): for an object, every expected field must match and other fields are ignored; for a list, the answer must be one of its items; otherwise the answer must equal it.
+- `equals_expected`: the answer must equal `expected` exactly.
+- `contains_expected`: the answer, as text, must contain `expected`.
+
+For anything else, write a check in Python and pass it: `Suite.from_file("cases.jsonl", agent=agent, check=my_check)`, or name it per case with `checks={"my_check": my_check}`. A check returns False, or raises `AssertionError`, to fail a run.
+
+Prefer code? Cases can also be written directly in Python with `Case(name, input, check=...)`; see [examples/xpath_healing](examples/xpath_healing).
 
 Start with `--smoke` for a single quick run per case. It checks your setup and is labelled as not a verdict.
 
