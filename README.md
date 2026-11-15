@@ -31,7 +31,7 @@ A newer or cheaper model comes out, or the old one is retired. Before switching,
 - **Stops early when the answer is already clear,** after half the runs. *(two looks)*
 - **Never lets a critical case hide in the average.** Mark it must pass and it can fail the comparison on its own.
 - **Keeps provider outages out of the score.** Rate limits and server errors are counted separately, not blamed on the model.
-- **Puts cost and speed next to quality,** from token counts and the prices you enter.
+- **Shows what each correct answer really costs.** Cost per correct task counts every run, failed ones and extra model calls included, so a model that is cheaper per token but fails more cannot look like a saving. Speed, model calls and reasoning tokens sit next to it.
 - **Works where you test:** a command, a pytest helper, and a GitHub workflow you can copy.
 
 ## Example: a shopping assistant
@@ -72,17 +72,21 @@ ai-agent-evaluation compare examples/shopping_assistant/suite.py --baseline-mode
 ```text
 Model swap: large-model -> small-model   (suite shopping_assistant, 30 cases)
 
-PASS. The new model is at most 6.4 points worse, inside your 10 point margin.
+PASS. The new model is at most 2.6 points worse, inside your 10 point margin.
 Changes up to 10 points worse are accepted; change this with --margin.
 
-                 large-model   small-model
-pass rate              96.1%         95.6%
-cost per run         $0.0023       $0.0005   80% lower
-median time            0.02s         0.01s   50% faster
+                    large-model   small-model
+pass rate                 93.3%         96.7%
+cost per run            $0.0045       $0.0011   77% lower
+cost per correct        $0.0049       $0.0011   77% lower
+median time               0.02s         0.01s   49% faster
+calls per run               2.0           2.3   12% more
+reasoning tokens            300           120
 
 Must pass:
-  running shoes under $100 size 10: 6/6 -> 6/6  ok
+  running shoes under $100 size 10: 4/6 -> 5/6  ok
   headphones under $100: 6/6 -> 6/6  ok
+  To fail on any single failure instead, mark the case strict=True.
 
 Runs: 360 of a 360 budget, stopped at look 2 of 2. Seed 7.
 ```
@@ -90,11 +94,15 @@ Runs: 360 of a 360 budget, stopped at look 2 of 2. Seed 7.
 Compare with `tiny-model`, which often ignores the shopper's budget, and the answer changes:
 
 ```text
-REGRESSED. The new model is at least 16.1 points worse, beyond your 10 point margin.
+REGRESSED. The new model is at least 12.1 points worse, beyond your 10 point margin.
 
-                 large-model    tiny-model
-pass rate              95.6%         63.3%
-cost per run         $0.0023       $0.0001   95% lower
+                    large-model    tiny-model
+pass rate                 91.1%         62.2%
+cost per run            $0.0046       $0.0003   93% lower
+cost per correct        $0.0050       $0.0005   90% lower
+median time               0.02s         0.01s   68% faster
+calls per run               2.1           2.6   25% more
+reasoning tokens            300             -
 ```
 
 It stopped after half the runs, because the answer was already clear. Each comparison also writes `eval-results/eval-report.md` and `eval-results/eval-verdict.json`.

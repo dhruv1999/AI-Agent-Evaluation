@@ -31,6 +31,8 @@ class Run:
     cost_usd: float | None = None
     detail: str = ""  # why it failed, or which provider error
     output_id: str = ""  # a short hash of the output, to notice runs that are all identical
+    llm_calls: int = 0
+    reasoning_tokens: int = 0
 
 
 def run_all(suite: Suite, plan: list[tuple[Case, str]], progress: Callable[[str], None] | None = None) -> list[Run]:
@@ -66,7 +68,19 @@ async def _run_one(suite: Suite, case: Case, model: str) -> Run:
     latency = time.perf_counter() - start
 
     def made(outcome: str, detail: str = "", output_id: str = "") -> Run:
-        return Run(case.name, model, outcome, round(latency, 4), usage.input_tokens, usage.output_tokens, usage.cost_usd, detail[:300], output_id)
+        return Run(
+            case.name,
+            model,
+            outcome,
+            round(latency, 4),
+            usage.input_tokens,
+            usage.output_tokens,
+            usage.cost_usd,
+            detail[:300],
+            output_id,
+            usage.llm_calls,
+            usage.reasoning_tokens,
+        )
 
     if not finished:
         task.cancel()  # a sync agent's thread cannot be stopped; it is a daemon, so it never blocks exit

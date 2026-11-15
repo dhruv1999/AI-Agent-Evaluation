@@ -115,6 +115,9 @@ class ModelStats:
     median_seconds: float | None
     input_tokens_per_run: float | None
     output_tokens_per_run: float | None
+    cost_per_correct: float | None = None  # all spend, failed runs included, divided by the runs that passed
+    calls_per_run: float | None = None
+    reasoning_tokens_per_run: float | None = None
 
 
 @dataclass
@@ -290,14 +293,20 @@ def _model_stats(model: str, records: list[Run], prices: dict[str, tuple[float, 
             pin, pout = prices[model]
             costs.append((r.input_tokens * pin + r.output_tokens * pout) / 1_000_000)
     tokens = [r for r in rs if r.input_tokens or r.output_tokens]
+    passes = sum(r.outcome == PASS for r in rs)
+    known_cost = len(costs) == len(rs)
+    called = [r for r in rs if r.llm_calls]
     return ModelStats(
         model,
         len(rs),
-        sum(r.outcome == PASS for r in rs) / len(rs),
-        sum(costs) / len(costs) if len(costs) == len(rs) else None,
+        passes / len(rs),
+        sum(costs) / len(costs) if known_cost else None,
         statistics.median(r.latency_s for r in rs),
         sum(r.input_tokens for r in tokens) / len(tokens) if tokens else None,
         sum(r.output_tokens for r in tokens) / len(tokens) if tokens else None,
+        sum(costs) / passes if known_cost and passes else None,
+        sum(r.llm_calls for r in called) / len(called) if called else None,
+        sum(r.reasoning_tokens for r in tokens) / len(tokens) if tokens and any(r.reasoning_tokens for r in tokens) else None,
     )
 
 

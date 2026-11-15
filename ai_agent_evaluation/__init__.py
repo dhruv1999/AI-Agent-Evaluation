@@ -11,7 +11,7 @@ Then compare two models on it:
 The answer is pass, regressed or not enough data, with cost and speed for each model.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from .cases import contains_expected, equals_expected, load_cases, matches_expected  # noqa: E402
 from .compare import SwapResult, compare_models  # noqa: E402

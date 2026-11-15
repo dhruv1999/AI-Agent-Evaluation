@@ -15,18 +15,23 @@ from typing import Any
 class Usage:
     input_tokens: int = 0
     output_tokens: int = 0
+    reasoning_tokens: int = 0  # already counted in output_tokens; shown separately because it is easy to miss
+    llm_calls: int = 0
     cost_usd: float | None = None
 
 
 _current: ContextVar[Usage | None] = ContextVar("ai_agent_evaluation_usage", default=None)
 
 
-def record_usage(input_tokens: int = 0, output_tokens: int = 0, cost_usd: float | None = None) -> None:
+def record_usage(input_tokens: int = 0, output_tokens: int = 0, cost_usd: float | None = None, reasoning_tokens: int = 0, calls: int = 1) -> None:
+    """Add one model call's usage to the current run. output_tokens includes any reasoning tokens."""
     usage = _current.get()
     if usage is None:
         return
     usage.input_tokens += int(input_tokens)
     usage.output_tokens += int(output_tokens)
+    usage.reasoning_tokens += int(reasoning_tokens)
+    usage.llm_calls += int(calls)
     if cost_usd is not None:
         usage.cost_usd = (usage.cost_usd or 0.0) + cost_usd
 
@@ -42,9 +47,14 @@ def record_response(response: Any) -> None:
         out = getattr(usage, "output_tokens", None)
         if out is None:
             out = getattr(usage, "completion_tokens", 0)
-        record_usage(inp, out or 0)
+        details = getattr(usage, "output_tokens_details", None) or getattr(usage, "completion_tokens_details", None)  # OpenAI
+        reasoning = getattr(details, "reasoning_tokens", 0) or 0
+        record_usage(inp, out or 0, reasoning_tokens=reasoning)
         return
     meta = getattr(response, "usage_metadata", None)  # Gemini
     if meta is not None:
-        out = (getattr(meta, "candidates_token_count", 0) or 0) + (getattr(meta, "thoughts_token_count", 0) or 0)
-        record_usage(getattr(meta, "prompt_token_count", 0) or 0, out)
+        thoughts = getattr(meta, "thoughts_token_count", 0) or 0
+        out = (getattr(meta, "candidates_token_count", 0) or 0) + thoughts
+        record_usage(getattr(meta, "prompt_token_count", 0) or 0, out, reasoning_tokens=thoughts)
+        return
+    record_usage()  # a call with no usage reported still counts as a call

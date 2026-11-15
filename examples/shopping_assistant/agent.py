@@ -96,6 +96,8 @@ def _live(request: str, model: str, client=None) -> dict:
 
 ACCURACY = {"large-model": 0.97, "small-model": 0.95, "tiny-model": 0.88}
 LATENCY_S = {"large-model": 0.020, "small-model": 0.010, "tiny-model": 0.006}
+REASONING = {"large-model": 300, "small-model": 120, "tiny-model": 0}  # reasoning tokens per decision
+EXTRA_CALL = {"large-model": 0.05, "small-model": 0.35, "tiny-model": 0.5}
 _calls: Counter = Counter()
 _lock = threading.Lock()
 
@@ -132,7 +134,10 @@ def _simulated(request: str, model: str) -> dict:
         raise ValueError(f"unknown simulated model {model!r}; use {sorted(ACCURACY)}, or SHOP_LIVE=1 with real models")
     dice = _dice(request, model)
     time.sleep(LATENCY_S[model] * (0.5 + dice.random()))
-    record_usage(input_tokens=900, output_tokens=60)
+    record_usage(input_tokens=700, output_tokens=40, reasoning_tokens=REASONING[model])  # decide which search to run
+    record_usage(input_tokens=1100, output_tokens=60)  # read the results and answer
+    if dice.random() < EXTRA_CALL[model]:  # smaller models sometimes search again before answering
+        record_usage(input_tokens=1300, output_tokens=60)
     answer = correct_answer(request)
     category, max_price, _ = understand(request)
     if model == "tiny-model" and max_price is not None and dice.random() < 0.7:

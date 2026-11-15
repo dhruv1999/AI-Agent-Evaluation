@@ -35,18 +35,50 @@ def _headline(result: SwapResult) -> list[str]:
     return out
 
 
+def _num(v: float | None) -> str:
+    return "-" if v is None else f"{v:,.1f}" if v < 100 else f"{v:,.0f}"
+
+
 def _table(result: SwapResult) -> list[tuple[str, str, str, str]]:
     b, c = result.models
-    return [
+    rows = [
         ("pass rate", _rate(b), _rate(c), ""),
         ("cost per run", _money(b.cost_per_run), _money(c.cost_per_run), _change(b.cost_per_run, c.cost_per_run, "lower", "higher")),
+        ("cost per correct", _money(b.cost_per_correct), _money(c.cost_per_correct), _change(b.cost_per_correct, c.cost_per_correct, "lower", "higher")),
         ("median time", _secs(b.median_seconds), _secs(c.median_seconds), _change(b.median_seconds, c.median_seconds, "faster", "slower")),
+    ]
+    if b.calls_per_run is not None or c.calls_per_run is not None:
+        rows.append(("calls per run", _num(b.calls_per_run), _num(c.calls_per_run), _change(b.calls_per_run, c.calls_per_run, "fewer", "more")))
+    if b.reasoning_tokens_per_run is not None or c.reasoning_tokens_per_run is not None:
+        rows.append(("reasoning tokens", _num(b.reasoning_tokens_per_run), _num(c.reasoning_tokens_per_run), ""))
+    return rows
+
+
+def _cost_story(result: SwapResult) -> list[str]:
+    """When price per run and cost per correct task tell different stories, say so."""
+    b, c = result.models
+    if None in (b.cost_per_run, c.cost_per_run, b.cost_per_correct, c.cost_per_correct) or not b.cost_per_run or not b.cost_per_correct:
+        return []
+    per_run = c.cost_per_run / b.cost_per_run - 1  # type: ignore[operator]
+    per_correct = c.cost_per_correct / b.cost_per_correct - 1  # type: ignore[operator]
+    if abs(per_run - per_correct) < 0.05:
+        return []
+
+    def word(x: float) -> str:
+        return f"{abs(x):.0%} {'cheaper' if x < 0 else 'more expensive'}"
+
+    return [
+        f"Cost per correct task: {result.candidate_model} is {word(per_correct)}, against {word(per_run)} per run."
+        " Failed runs still cost money, so the real saving is the per correct figure."
     ]
 
 
 def _sections(result: SwapResult) -> list[list[str]]:
     """Paragraphs after the table, each a list of lines; indented lines are details."""
     sections = []
+    story = _cost_story(result)
+    if story:
+        sections.append(story)
     if result.must_pass:
         rows = ["Must pass:"]
         for m in result.must_pass:
@@ -86,9 +118,9 @@ def text(result: SwapResult) -> str:
     out = [f"Model swap: {result.baseline_model} -> {result.candidate_model}   (suite {result.suite}, {len(result.tallies)} cases)", ""]
     out += _headline(result) + [""]
     width = max(len(result.baseline_model), len(result.candidate_model), 9) + 3
-    out.append(f"{'':14}{result.baseline_model:>{width}}{result.candidate_model:>{width}}")
+    out.append(f"{'':17}{result.baseline_model:>{width}}{result.candidate_model:>{width}}")
     for label, old, new, change in _table(result):
-        out.append(f"{label:14}{old:>{width}}{new:>{width}}   {change}".rstrip())
+        out.append(f"{label:17}{old:>{width}}{new:>{width}}   {change}".rstrip())
     for section in _sections(result):
         out += [""] + section
     return "\n".join(out)

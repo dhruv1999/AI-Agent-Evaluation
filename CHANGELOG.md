@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+- Cost per correct task: everything each model spent, failed runs included, divided by the runs that passed. Price per run hides retries, extra steps and failures; this does not
+- Model calls per run and reasoning tokens per run, read from OpenAI, Anthropic and Gemini responses
+- The report says when price per run and cost per correct task tell different stories
+
 ## 0.1.0
 
 First release: should your agent switch models?
