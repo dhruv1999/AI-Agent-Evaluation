@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/dhruv1999/AI-Agent-Evaluation/actions/workflows/ci.yml/badge.svg)](https://github.com/dhruv1999/AI-Agent-Evaluation/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/ai-agent-evaluation)](https://pypi.org/project/ai-agent-evaluation/)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 
 **Should your agent switch models? Find out in an afternoon, not a day.**
@@ -109,10 +110,10 @@ It stopped after half the runs, because the answer was already clear. Each compa
 
 **With real OpenAI models:** set `OPENAI_API_KEY` and `SHOP_LIVE=1`, pass real model names, and give their prices with `--price MODEL=INPUT,OUTPUT`. The output above comes from the simulated models (with `DEMO_SEED=7 ... --seed 7`), not from real ones.
 
-To use the library in your own project:
+To use the library in your own project, install it from [PyPI](https://pypi.org/project/ai-agent-evaluation/):
 
 ```bash
-pip install git+https://github.com/dhruv1999/AI-Agent-Evaluation
+pip install ai-agent-evaluation
 ```
 
 ## Test case files
